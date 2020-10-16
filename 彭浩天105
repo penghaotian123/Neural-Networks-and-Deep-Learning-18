@@ -1,0 +1,34 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+path = r'D:\\ex1data2.txt'
+data = pd.read_csv(path,names = ['sizes','rooms','prices'])
+
+data['sizes'] = (data['sizes'] - data['sizes'].mean())/data['sizes'].std()
+data['rooms'] = (data['rooms'] - data['rooms'].mean())/data['rooms'].std()
+data['prices'] = (data['prices'] - data['prices'].mean())/data['prices'].std()
+
+theta = np.matrix(np.zeros(3))
+data.insert(0,'ones',1)
+cols = data.shape[1]
+X = np.matrix(data.iloc[:,0:cols-1])
+Y = np.matrix(data.iloc[:,cols-1:cols])
+
+def computeCost(X,Y,theta):
+    m = X.shape[0]
+    return np.sum(np.power((X*theta.T) - Y,2))/(2*m)
+
+def gradientDescent(X,Y,theta,alpha,epoch):
+    m = X.shape[0]
+    cost = []
+    for i in range(epoch):
+        theta = theta - alpha/m*(X*theta.T - Y).T*X
+        cost.append(computeCost(X,Y,theta))       
+    return theta,cost
+
+alpha = 0.01
+epoch = 1000
+final_theta,cost = gradientDescent(X,Y,theta,alpha,epoch)
+final_cost = computeCost(X,Y,final_theta)
+print(final_cost)
