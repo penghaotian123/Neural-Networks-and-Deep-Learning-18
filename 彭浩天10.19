@@ -1,0 +1,50 @@
+import numpy as np
+import matplotlib.pyplot as plt
+def sigmoid(predict_z):
+    return 1.0 / (1 + np.exp(predict_z))
+def loss(h, y):
+    loss = (-y * np.log(h) - (1 - y) * np.log(1 - h)).mean()
+    return loss
+def gradient(X, h, y):
+    gradient = np.dot(X.T, (h - y)) / y.shape[0]
+    return gradient
+def Logistic_Regression(X, y, stepsize, max_iters):
+    intercept = np.ones((X.shape[0], 1))
+    X = np.concatenate((intercept, X), axis=1)
+    w = np.zeros((X.shape[1], 1))
+    l_history = np.zeros((max_iters, 1))
+    for i in range(0, max_iters):
+        z = np.dot(X, w)
+        h = sigmoid(z)
+        g = gradient(X, h, y)
+        w -= stepsize * g
+        l_history[i] = loss(h, y)
+        return l_history, w
+def Logistic_Regression_predict(test_X, test_label, stepsize, max_iters, test_X1):
+    accuracy = np.zeros((max_iters, 1))
+    for i in range(0, max_iters):
+        _, w = Logistic_Regression(train_X, train_label, stepsize, i)
+        predict_z = np.dot(test_X1, w)
+        predict_label = sigmoid(predict_z)
+        predict_label[predict_label < 0.5] = 0
+        predict_label[predict_label > 0.5] = 1
+        accuracy[i] = (predict_label == test_label).mean()
+        return accuracy
+    data = np.loadtxt('C:\\Users\\70880\\Desktop\\S.csv', dtype='float')
+    X = data[:, 0:2]
+    y = data[:, 2:3]
+    train_X = X[0:80, :]
+    text_X = X[80:, :]
+    train_label = y[0:80, :]
+    test_label = y[80:, :]
+    max_iters = 1000
+    stepsize = 0.05
+    intercept = np.ones((test_X.shape[0], 1))
+    test_X1 = np.concatenate((intercept, test_X), axis=1)
+    l_history, w = Logistic_Regression(train_X, train_label, stepsize, max_iters)
+    accuary = Logistic_Regression_predict(test_X1, test_label, stepsize, max_iters)
+    x_col = np.arange(0, max_iters)
+    plt.plot(x_col, accuary, '-b')
+    plt.xlabel('Number of iterations')
+    plt.ylabel('accuracy')
+    plt.show()
